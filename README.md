@@ -14,3 +14,9 @@ This repository contains my personal solutions to LeetCode problems, written in 
 ├── README.md
 └── ...
 ```
+
+## Problem Table
+
+| # | Title | Status | Time Complexity | Space Complexity |
+|---|-------|--------|-----------------|------------------|
+| 4 | Median of Two Sorted Arrays | ❌ Failing | O(log(n)) | O(n) |
