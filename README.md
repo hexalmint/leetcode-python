@@ -23,3 +23,4 @@ This repository contains my personal solutions to LeetCode problems, written in 
 | 4 | Median of Two Sorted Arrays | ❌ Failing | O(log(n)) | O(n) |
 | 5 | Longest Palindromic Substring | ❌ Failing | O(n) | O(1) |
 | 11 | Container With Most Water | ✅ Passing | O(n) | O(1) |
+| 20 | Valid Parentheses | ✅ Passing | O(n) | O(n) |
