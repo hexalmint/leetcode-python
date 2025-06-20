@@ -10,8 +10,17 @@ def s():
 
 # Tests for _binary_search
 @pytest.mark.parametrize(
-    "test_string, expected",
-    [("aba", "aba"), ("ababababba", "abababa"), ("a" + ("ba" * 50), "a" + ("ba" * 50))],
+    "string, expected",
+    [
+        ("", ""),
+        ("a", "a"),
+        ("ac", "a"),
+        ("aa", "aa"),
+        ("aba", "aba"),
+        ("ababba", "abba"),
+        ("ababababba", "abababa"),
+        ("a" + ("ba" * 50), "a" + ("ba" * 50)),
+    ],
 )
-def test_binary_search(s, test_string, expected):
-    assert s.longestPalindrome(test_string) == expected
+def test_binary_search(s: Solution, string: str, expected: str):
+    assert s.longestPalindrome(string) == expected
