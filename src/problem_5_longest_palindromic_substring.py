@@ -5,145 +5,96 @@
 #
 
 
-# TODO: This algorithm fails to check for existing palindromes within the
-# current palindrome when palindrome tracking stops. For instance, consider
-# the example "abababa". The algorthm will recognize "aba" and "abababa",
-# but not "ababa".
 # @lc code=start
 class Solution:
     def longestPalindrome(self, s: str) -> str:
         """
-        Calculates the longest palindrome in a given string.
-
-        The algorithm operates on the input string with three index pointers.
-        The first is a current index pointer, always pointing to the last seen
-        letter in the string. The second pointer is a pointer for palindromes
-        of even length. This pointer starts one index less than the current
-        index pointer. The third pointer is a pointer for palindromes of odd
-        length. This pointer starts two indices less than the current index
-        pointer.
-
-        Even Palindrome Tracking:
-        For each character seen, that character is compared with the character
-        at the index of the even pointer. If the two characters are the same,
-        the even pointer is decremented, leading to the previous character
-        being compared in the next iteration. Otherwise, tracking on the
-        current palindrome stops. Then, the longest palindrome is updated per
-        the "Longest Palindrome Updates" section.
-
-        Odd Palindrome Tracking:
-        For each character seen, that character is compared with the character
-        at the index of the odd pointer. If the two characters are the same,
-        the odd pointer is decremented, leading to the previous character being
-        compared in the next iteration. Otherwise, tracking on the current
-        palindrome stops. Then, the longest palindrome is updated per the
-        "Longest Palindrome Updates" section.
-
-        Note that per iteration, the even-length palindrome is always shorter
-        than the odd-length palindrome (before palindrome tracking stops for
-        the first time). Thus, odd-length palindromes are tracked after even-
-        length palindromes in a given iteration.
-
-        Boundaries Reached:
-        There are two instances where even and odd palindrome tracking is
-        overruled. That's when the even/odd pointer reaches the start of the
-        input string or the current index pointer reaches the end of the input
-        string. In both cases, palindrome tracking is stopped by force. Then,
-        the longest palindrome is updated per the "Longest Palindrome Updates"
-        section.
-
-        Longest Palindrome Updates:
-        To update the longest palindrome, the length of the current palindrome
-        being tracked is compared to the longest known palindrome. If the
-        length of the current palindrome is larger, the longest palindrome is
-        replaced with the current palindrome.
+        Determines the longest palindrome in the input string.
         """
 
         if len(s) < 2:
             return s
 
-        longest_palindrome = s[0]
-        even_ptr = 0
-        odd_ptr = 0
-        for idx in range(1, len(s)):
-            # If the left edge of the string was reached, determine the
-            # palindrome length and update stats.
-            if even_ptr == -1:
-                palindrome_len = idx - even_ptr - 1
-                if palindrome_len > len(longest_palindrome):
-                    longest_palindrome = s[even_ptr + 1 : idx]
+        odd_start_idx = 0
+        odd_end_idx = 0
 
-                # Set the even pointer.
-                even_ptr = idx - 1 if s[idx] == s[idx - 1] else idx
+        # Initialize the palindrome edge tracking indices such that the first
+        # two lines of the next loop cause the two central indices to be
+        # compared first.
+        even_start_idx = 1
+        even_end_idx = 0
 
-            # If the right edge of the string is reached, determine the
-            # palindrome length and update stats.
-            elif idx == len(s) - 1:
-                if s[idx] == s[even_ptr]:
-                    palindrome_len = idx - even_ptr + 1
-                    if palindrome_len > len(longest_palindrome):
-                        longest_palindrome = s[even_ptr:]
+        odd_center_idx = 0
 
-                else:
-                    palindrome_len = idx - even_ptr - 1
-                    if palindrome_len > len(longest_palindrome):
-                        longest_palindrome = s[even_ptr + 1 : -1]
+        # The center index in the even case points to the left index of the
+        # two central indices.
+        even_center_idx = 0
 
-            # If the palindrome continues, decrement the even pointer.
-            elif s[idx] == s[even_ptr]:
-                even_ptr -= 1
+        # Store the longest palindrome of the sequence in the form [start_idx,
+        # end_idx], where square brackets imply inclusivity, not list syntax.
+        longest_palindrome = (0, 0)
 
-            # If the palindrome stops here, determine the palindrome length
-            # and update stats.
+        # At the start of the loop, the algorithm assumes that the current
+        # substring indicated by the start and end indices is a palindrome.
+        # This is true in the base case, since: in the odd case, idx 0 -> idx 0
+        # (inclusive) is equivalent to s[0] (a single character is a
+        # palindrome) and in the even case, idx 1 -> idx 0 (inclusive) is
+        # equivalent to an empty string (the largest even-sized palindrome
+        # assumable without comparing characters for equality).
+        while odd_center_idx < len(s) or even_center_idx + 1 < len(s):
+            # ====== ODD CASE ======
+
+            # Update the start and end indices.
+            odd_start_idx -= 1
+            odd_end_idx += 1
+
+            # Check if the start and end indices extend the palindrome.
+            if (
+                odd_center_idx < len(s)
+                and (odd_start_idx >= 0 and odd_end_idx < len(s))
+                and (s[odd_start_idx] == s[odd_end_idx])
+            ):
+                longest_palindrome = self._get_longer_substring(
+                    longest_palindrome, (odd_start_idx, odd_end_idx)
+                )
+
+            # If they don't, move the palindrome center forward, and repeat.
             else:
-                palindrome_len = idx - even_ptr - 1
-                if palindrome_len > len(longest_palindrome):
-                    longest_palindrome = s[even_ptr + 1 : idx]
+                odd_center_idx += 1
+                odd_start_idx = odd_end_idx = odd_center_idx
 
-                # Set the even pointer.
-                even_ptr = idx - 1 if s[idx] == s[idx - 1] else idx
+            # ====== EVEN CASE ======
 
-            if idx < 2:
-                continue
+            # Update the start and end indices.
+            even_start_idx -= 1
+            even_end_idx += 1
 
-            # If the left edge of the string was reached, determine the
-            # palindrome length and update stats.
-            if odd_ptr == -1:
-                palindrome_len = idx - odd_ptr - 1
-                if palindrome_len > len(longest_palindrome):
-                    longest_palindrome = s[odd_ptr + 1 : idx]
+            # Check if the start and end indices extend the palindrome.
+            if (
+                even_center_idx + 1 < len(s)
+                and (even_start_idx >= 0 and even_end_idx < len(s))
+                and (s[even_start_idx] == s[even_end_idx])
+            ):
+                longest_palindrome = self._get_longer_substring(
+                    longest_palindrome, (even_start_idx, even_end_idx)
+                )
 
-                # Set the odd pointer.
-                odd_ptr = idx - 1 if s[idx] == s[idx - 1] else idx - 1
-
-            # If the right edge of the string is reached, determine the
-            # palindrome length and update stats.
-            elif idx == len(s) - 1:
-                if s[idx] == s[odd_ptr]:
-                    palindrome_len = idx - odd_ptr + 1
-                    if palindrome_len > len(longest_palindrome):
-                        longest_palindrome = s[odd_ptr:]
-
-                else:
-                    palindrome_len = idx - odd_ptr - 1
-                    if palindrome_len > len(longest_palindrome):
-                        longest_palindrome = s[odd_ptr + 1 : -1]
-
-            # If the palindrome continues, decrement the odd pointer.
-            elif s[idx] == s[odd_ptr]:
-                odd_ptr -= 1
-
-            # If the palindrome stops here, determine the palindrome length
-            # and update stats.
+            # If they don't, move the palindrome center forward, and repeat.
             else:
-                palindrome_len = idx - odd_ptr - 1
-                if palindrome_len > len(longest_palindrome):
-                    longest_palindrome = s[odd_ptr + 1 : idx]
+                even_center_idx += 1
 
-                # Set the odd pointer.
-                odd_ptr = idx - 1 if s[idx] == s[idx - 1] else idx - 1
+                # Initialize the new palindrome edge tracking indices such that the
+                # first two lines of the next loop cause the two central indices to
+                # be compared first.
+                even_start_idx = even_center_idx + 1
+                even_end_idx = even_center_idx
 
-        return longest_palindrome
+        return s[longest_palindrome[0] : longest_palindrome[1] + 1]
+
+    def _get_longer_substring(
+        self, a: tuple[int, int], b: tuple[int, int]
+    ) -> tuple[int, int]:
+        return a if a[1] - a[0] > b[1] - b[0] else b
 
 
 # @lc code=end
