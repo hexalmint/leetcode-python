@@ -21,7 +21,7 @@ This repository contains my personal solutions to LeetCode problems, written in 
 |---|-------|--------|-----------------|------------------|
 | 2 | Adding Two Numbers | ✅ Passing | O(n) | O(n) |
 | 4 | Median of Two Sorted Arrays | ❌ Failing | O(log(n)) | O(n) |
-| 5 | Longest Palindromic Substring | ❌ Failing | O(n) | O(1) |
+| 5 | Longest Palindromic Substring | ✅ Passing | O(n^2) | O(1) |
 | 7 | Reverse Integer | ✅ Passing | O(log(n)) | O(1) |
 | 8 | String to Integer (atoi) | ✅ Passing | O(n) | O(1) |
 | 11 | Container With Most Water | ✅ Passing | O(n) | O(1) |
